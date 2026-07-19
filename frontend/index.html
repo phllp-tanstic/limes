@@ -535,79 +535,112 @@
       </section>
 
       <section id="demo" class="px-5 pb-16 sm:px-8 sm:pb-20 lg:pb-32">
-        <div class="mx-auto grid max-w-7xl overflow-hidden rounded-lg bg-[#CBD5C2] lg:grid-cols-[0.85fr_1.15fr]">
-          <div class="p-8 sm:p-12 lg:p-16">
-            <p class="text-xs uppercase tracking-[0.22em] text-[#506646]">
-              Approval preview
-            </p>
-            <h2 class="mt-5 font-['Cormorant_Garamond'] text-5xl font-medium leading-none tracking-tight text-[#162512]">
-              Know what is at risk before you sign.
-            </h2>
-            <p class="mt-7 text-base leading-8 text-[#485743]">
-              No percentages. No guesswork. Just a real number based on live
-              balances and token prices.
-            </p>
-          </div>
+  <div class="mx-auto grid max-w-7xl overflow-hidden rounded-lg bg-[#CBD5C2] lg:grid-cols-[0.85fr_1.15fr]">
+    <div class="p-8 sm:p-12 lg:p-16">
+      <p class="text-xs uppercase tracking-[0.22em] text-[#506646]">
+        Permission gateway
+      </p>
+      <h2 class="mt-5 font-['Cormorant_Garamond'] text-5xl font-medium leading-none tracking-tight text-[#162512]">
+        Grant any app a bounded permission.
+      </h2>
+      <p class="mt-7 text-base leading-8 text-[#485743]">
+        Paste any spender address. Set a cap and expiry. LimesVault enforces both on-chain — the spender can never exceed what you set, and you can revoke instantly at any time.
+      </p>
+      <div class="mt-8 rounded-lg border border-[#162512]/15 bg-white/60 p-5">
+        <p class="text-xs uppercase tracking-wider text-[#506646] mb-3">Try with our demo spender</p>
+        <p class="text-xs text-[#485743] mb-2">Don't have a spender address? Use the Limes demo subscription contract to test the full flow:</p>
+        <code class="block text-xs text-[#162512] bg-[#F0F5E9] rounded px-3 py-2 break-all cursor-pointer hover:bg-[#E4EEDB] transition-colors" id="demoSpenderAddress" onclick="document.getElementById('spenderInput').value=this.textContent.trim(); document.getElementById('tokenInput').value='0xf5cebCa6b269183A3976136E52752E6AC4ee5Fae'; document.getElementById('tokenSymbolDisplay').textContent='mUSD';">
+          0x18032362b1b1F30bF39850668915a1f14A2A04D2
+        </code>
+        <p class="text-[10px] text-[#687464] mt-2">Click to autofill ↑</p>
+      </div>
+    </div>
 
-          <div class="bg-[#1A2517] p-5 sm:p-10">
-            <div class="mx-auto max-w-lg rounded-lg border border-white/10 bg-[#F8FAF5] p-6 shadow-2xl">
-              <div class="flex items-center justify-between">
-                <div class="">
-                  <p class="text-xs uppercase tracking-wider text-[#687464]">
-                    Permission request
-                  </p>
-                  <p class="mt-2 text-sm text-[#162512]"></p>
-                    Limes Subscription Demo · <span id="subAddressDisplay">not connected</span>
-                  </p>
-                </div>
-                <span class="rounded-full bg-[#E4EEDB] px-3 py-2 text-xs text-[#3D592B]">
-                  Monad testnet
-                </span>
-              </div>
-              <div class="my-6 h-px bg-[#162512]/10"></div>
-              <div class="grid grid-cols-2 gap-4">
-                <div class="rounded-lg border border-[#162512]/10 p-4">
-                  <p class="text-xs text-[#697565]">SPENDING CAP</p>
-                  <div class="mt-2 flex items-baseline gap-1">
-                    <input id="capInput" type="number" min="1" value="250" class="w-20 bg-transparent font-['Cormorant_Garamond'] text-3xl font-semibold tracking-tight text-[#162512] focus:outline-none" />
-                    <span class="text-sm text-[#697565]">mUSD</span>
-                  </div>
-                </div>
-                <div class="rounded-lg border border-[#162512]/10 p-4">
-                  <p class="text-xs text-[#697565]">EXPIRY</p>
-                  <div class="mt-2 flex items-baseline gap-1">
-                    <input id="expiryInput" type="number" min="1" value="30" class="w-14 bg-transparent font-['Cormorant_Garamond'] text-3xl font-semibold tracking-tight text-[#162512] focus:outline-none" />
-                    <span class="text-sm text-[#697565]">days</span>
-                  </div>
-                </div>
-              </div>
-              <div class="mt-4 rounded-lg bg-[#162512] p-5 text-white">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs text-[#AEBBA9]">MAXIMUM DOLLAR EXPOSURE</span>
-                  <i data-lucide="activity" class="h-4 w-4 text-[#A6D17B]" stroke-width="1.5"></i>
-                </div>
-                <p class="mt-3 font-['Cormorant_Garamond'] text-5xl font-medium tracking-tight" id="exposureDisplay">
-                  $250.00
-                </p>
-                <p class="mt-3 text-xs text-[#AEBBA9]" id="demoStatus">
-                  Connect your wallet to begin.
-                </p>
-              </div>
-              <button type="button" id="demoActionBtn" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#8EB364] px-5 py-4 text-sm font-medium text-[#162512] transition-colors hover:bg-[#9FC477] disabled:opacity-60">
-                <span id="demoActionLabel">Create bounded approval</span>
-                <i data-lucide="arrow-right" class="h-4 w-4" stroke-width="1.5"></i>
-              </button>
-              <div id="postGrantActions" class="mt-3 hidden gap-3">
-                <button type="button" id="subscribeBtn" class="flex-1 rounded-lg border border-[#162512]/20 bg-white px-4 py-3 text-sm font-medium text-[#162512] hover:bg-[#F0F5E9]">
-                  Subscribe now
-                </button>
-                <button type="button" id="revokeBtn" class="flex-1 rounded-lg border border-[#993C1D]/30 bg-white px-4 py-3 text-sm font-medium text-[#993C1D] hover:bg-[#FAECE7]">
-                  Revoke permission
-                </button>
-              </div>
+    <div class="bg-[#1A2517] p-5 sm:p-10">
+      <div class="mx-auto max-w-lg rounded-lg border border-white/10 bg-[#F8FAF5] p-6 shadow-2xl">
+
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-xs uppercase tracking-wider text-[#687464]">Permission request</p>
+          <span class="rounded-full bg-[#E4EEDB] px-3 py-2 text-xs text-[#3D592B]">Monad testnet</span>
+        </div>
+
+        <div class="space-y-3 mb-4">
+          <div class="rounded-lg border border-[#162512]/10 p-3">
+            <p class="text-[10px] uppercase tracking-wider text-[#697565] mb-1.5">Spender address</p>
+            <input
+              id="spenderInput"
+              type="text"
+              placeholder="0x... any contract address"
+              class="w-full bg-transparent text-xs text-[#162512] placeholder-[#AEBBA9] focus:outline-none font-mono"
+            />
+          </div>
+          <div class="rounded-lg border border-[#162512]/10 p-3">
+            <p class="text-[10px] uppercase tracking-wider text-[#697565] mb-1.5">Token</p>
+            <div class="flex items-center gap-2">
+              <input
+                id="tokenInput"
+                type="text"
+                placeholder="0x... ERC-20 token address"
+                class="flex-1 bg-transparent text-xs text-[#162512] placeholder-[#AEBBA9] focus:outline-none font-mono"
+              />
+              <span id="tokenSymbolDisplay" class="text-xs text-[#697565] shrink-0"></span>
             </div>
           </div>
-      </section>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="rounded-lg border border-[#162512]/10 p-4">
+            <p class="text-xs text-[#697565]">SPENDING CAP</p>
+            <div class="mt-2 flex items-baseline gap-1">
+              <input id="capInput" type="number" min="1" value="250" class="w-20 bg-transparent font-['Cormorant_Garamond'] text-3xl font-semibold tracking-tight text-[#162512] focus:outline-none" />
+              <span id="capTokenSymbol" class="text-sm text-[#697565]">tokens</span>
+            </div>
+          </div>
+          <div class="rounded-lg border border-[#162512]/10 p-4">
+            <p class="text-xs text-[#697565]">EXPIRY</p>
+            <div class="mt-2 flex items-baseline gap-1">
+              <input id="expiryInput" type="number" min="1" value="30" class="w-14 bg-transparent font-['Cormorant_Garamond'] text-3xl font-semibold tracking-tight text-[#162512] focus:outline-none" />
+              <span class="text-sm text-[#697565]">days</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-lg bg-[#162512] p-5 text-white mb-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-[#AEBBA9]">MAXIMUM EXPOSURE</span>
+            <i data-lucide="activity" class="h-4 w-4 text-[#A6D17B]" stroke-width="1.5"></i>
+          </div>
+          <p class="mt-3 font-['Cormorant_Garamond'] text-5xl font-medium tracking-tight" id="exposureDisplay">
+            250 tokens
+          </p>
+          <p class="mt-3 text-xs text-[#AEBBA9]" id="demoStatus">
+            Connect your wallet to begin.
+          </p>
+        </div>
+
+        <button type="button" id="demoActionBtn" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#8EB364] px-5 py-4 text-sm font-medium text-[#162512] transition-colors hover:bg-[#9FC477] disabled:opacity-60">
+          <span id="demoActionLabel">Create bounded approval</span>
+          <i data-lucide="arrow-right" class="h-4 w-4" stroke-width="1.5"></i>
+        </button>
+
+        <div id="postGrantActions" class="mt-3 hidden gap-3">
+          <button type="button" id="subscribeBtn" class="flex-1 rounded-lg border border-[#162512]/20 bg-white px-4 py-3 text-sm font-medium text-[#162512] hover:bg-[#F0F5E9]">
+            Test spender call
+          </button>
+          <button type="button" id="revokeBtn" class="flex-1 rounded-lg border border-[#993C1D]/30 bg-white px-4 py-3 text-sm font-medium text-[#993C1D] hover:bg-[#FAECE7]">
+            Revoke permission
+          </button>
+        </div>
+
+        <p class="mt-4 text-[10px] text-[#687464] text-center">
+          "Test spender call" only works with the demo contract above. For your own spender, integrate via
+          <a href="https://github.com/phllp-tanstic/limes" target="_blank" class="underline hover:text-[#162512]">LimesVault's pull() API</a>.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</section>
 
       <section id="permissions" class="px-5 pb-16 sm:px-8 sm:pb-20">
   <div id="permissionsPanel" class="hidden mx-auto max-w-7xl">
@@ -672,9 +705,9 @@
         Connect your wallet to scan
       </p>
       <p class="text-sm leading-7 text-[#5D6759] mb-6 max-w-sm mx-auto">
-        Scans WMON, WETH, USDC, USDT and mUSD on Monad Testnet. Reads batched via Multicall3 — one RPC call for all allowance checks.
+        Full approval scanning requires a dedicated RPC indexer. Coming post-launch — the scanner contract and Multicall3 integration are live and auditable on GitHub.
       </p>
-      <button type="button" id="scanBtn"
+      <button type="button" id="scanBtn" disabled
         class="inline-flex items-center gap-2 rounded-lg bg-[#162512] px-6 py-3 text-sm font-medium text-[#CFE8AE] transition-colors hover:bg-[#21371A]">
         <i data-lucide="scan-search" class="h-4 w-4" stroke-width="1.5"></i>
         Scan my wallet

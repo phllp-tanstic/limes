@@ -82,10 +82,6 @@ const ABIS = {
 
 const KNOWN_TOKENS = [
   { symbol: 'mUSD', address: '0xf5cebCa6b269183A3976136E52752E6AC4ee5Fae', decimals: 18 },
-  { symbol: 'WMON', address: '0xFb8bf4c1CC7a94c73D209a149eA2AbEa852BC541', decimals: 18 },
-  { symbol: 'WETH', address: '0xB5a30b0FDc5EA94A52fDc42e3E9760Cb8449Fb37', decimals: 18 },
-  { symbol: 'USDC', address: '0xf817257fed379853cDe0fa4F97AB987181B1E5Ea', decimals: 6 },
-  { symbol: 'USDT', address: '0x88b8E2161DEDC77EF4ab7585569D2415a1C1055D', decimals: 6 },
 ]
 
 const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11'
@@ -126,7 +122,9 @@ function resetPostGrantButtons() {
 
 function updateExposure() {
   const cap = Number($('capInput').value || 0)
-  $('exposureDisplay').textContent = '$' + cap.toFixed(2)
+  const symbol = $('tokenSymbolDisplay').textContent || 'tokens'
+  $('exposureDisplay').textContent = cap.toFixed(0) + ' ' + symbol
+  $('capTokenSymbol').textContent = symbol || 'tokens'
 }
 
 function scannerShow(id) {
@@ -275,13 +273,34 @@ async function runDemoFlow() {
       return
     }
 
+    const spenderAddress = $('spenderInput').value.trim()
+    const tokenAddress = $('tokenInput').value.trim()
+    const capValue = $('capInput').value || '250'
+    const expiryDays = Number($('expiryInput').value || '30')
+
+    if (!ethers.isAddress(spenderAddress)) {
+      setStatus('Please enter a valid spender address.')
+      setButton('Create bounded approval', false)
+      return
+    }
+
+    if (!ethers.isAddress(tokenAddress)) {
+      setStatus('Please enter a valid token address.')
+      setButton('Create bounded approval', false)
+      return
+    }
+
+    const capWei = ethers.parseEther(capValue)
+    const expiryTimestamp = Math.floor(Date.now() / 1000) + expiryDays * 24 * 60 * 60
+
+    // Check for existing active permission to this spender
     const existingIds = await vault.getOwnerPermissions(userAddress)
     for (const existingId of existingIds) {
       const active = await vault.isActive(existingId)
       const p = await vault.permissions(existingId)
-      if (active && p.spender.toLowerCase() === CONFIG.addresses.limesSubscription.toLowerCase()) {
+      if (active && p.spender.toLowerCase() === spenderAddress.toLowerCase() && p.token.toLowerCase() === tokenAddress.toLowerCase()) {
         currentPermissionId = existingId
-        setStatus('You already have an active permission. Subscribe or revoke it first.')
+        setStatus('Active permission already exists for this spender. Use it or revoke it first.')
         setButton('Approval created \u2713', true)
         $('demoActionBtn').classList.add('opacity-40', 'cursor-not-allowed')
         resetPostGrantButtons()
@@ -291,29 +310,36 @@ async function runDemoFlow() {
       }
     }
 
-    const capValue = $('capInput').value || '250'
-    const expiryDays = Number($('expiryInput').value || '30')
-    const capWei = ethers.parseEther(capValue)
-    const expiryTimestamp = Math.floor(Date.now() / 1000) + expiryDays * 24 * 60 * 60
+    // Generic ERC-20 interface for any token
+    const genericToken = new ethers.Contract(tokenAddress, [
+      'function mint(address to, uint256 amount) external',
+      'function approve(address spender, uint256 amount) external returns (bool)',
+      'function balanceOf(address) view returns (uint256)',
+      'function allowance(address owner, address spender) view returns (uint256)',
+      'function symbol() view returns (string)',
+    ], signer)
 
-    const balance = await token.balanceOf(userAddress)
-    if (balance < capWei) {
-      setStatus('Minting test mUSD\u2026')
-      const mintTx = await token.mint(userAddress, capWei * 2n)
-      await mintTx.wait()
+    // Try to mint if it's our MockUSD (will fail silently for other tokens)
+    if (tokenAddress.toLowerCase() === CONFIG.addresses.mockUSD.toLowerCase()) {
+      const balance = await genericToken.balanceOf(userAddress)
+      if (balance < capWei) {
+        setStatus('Minting test mUSD\u2026')
+        const mintTx = await genericToken.mint(userAddress, capWei * 2n)
+        await mintTx.wait()
+      }
     }
 
-    const allowance = await token.allowance(userAddress, CONFIG.addresses.limesVault)
+    const allowance = await genericToken.allowance(userAddress, CONFIG.addresses.limesVault)
     if (allowance < capWei) {
-      setStatus('Approving Limes (one-time)\u2026')
-      const approveTx = await token.approve(CONFIG.addresses.limesVault, ethers.MaxUint256)
+      setStatus('Approving LimesVault once for this token\u2026')
+      const approveTx = await genericToken.approve(CONFIG.addresses.limesVault, ethers.MaxUint256)
       await approveTx.wait()
     }
 
     setStatus('Granting capped permission\u2026')
     const grantTx = await vault.grantPermission(
-      CONFIG.addresses.limesSubscription,
-      CONFIG.addresses.mockUSD,
+      spenderAddress,
+      tokenAddress,
       capWei,
       0,
       expiryTimestamp
@@ -324,7 +350,15 @@ async function runDemoFlow() {
       .find((e) => e && e.name === 'PermissionGranted')
     currentPermissionId = event.args.id
 
-    setStatus('Permission granted \u2014 capped at ' + capValue + ' mUSD, expires in ' + expiryDays + ' days.')
+    // Update exposure display with token symbol if available
+    try {
+      const symbol = await genericToken.symbol()
+      $('exposureDisplay').textContent = capValue + ' ' + symbol
+    } catch {
+      $('exposureDisplay').textContent = capValue + ' tokens'
+    }
+
+    setStatus('Permission granted \u2014 capped at ' + capValue + ' tokens, expires in ' + expiryDays + ' days.')
     setButton('Approval created \u2713', true)
     $('demoActionBtn').classList.add('opacity-40', 'cursor-not-allowed')
     resetPostGrantButtons()
@@ -334,13 +368,25 @@ async function runDemoFlow() {
 
   } catch (err) {
     console.error(err)
-    setStatus('Something went wrong: ' + (err.shortMessage || err.message || 'see console'))
+    setStatus('Error: ' + (err.shortMessage || err.message || 'see console'))
     setButton('Create bounded approval', false)
   }
 }
 
 async function handleSubscribe() {
   if (!currentPermissionId) return
+
+  const spenderAddress = $('spenderInput').value.trim()
+  const isDemoContract = spenderAddress.toLowerCase() === CONFIG.addresses.limesSubscription.toLowerCase()
+
+  if (!isDemoContract) {
+    setStatus('Permission granted. Your spender contract can now call LimesVault.pull() with permission ID: ' + currentPermissionId)
+    $('subscribeBtn').textContent = 'ID copied \u2713'
+    $('subscribeBtn').classList.add('opacity-50', 'cursor-not-allowed')
+    await navigator.clipboard.writeText(currentPermissionId).catch(() => {})
+    return
+  }
+
   try {
     $('subscribeBtn').disabled = true
     setStatus('Confirm the transaction in your wallet\u2026')
@@ -349,13 +395,13 @@ async function handleSubscribe() {
     const receipt = await tx.wait()
     if (receipt.status !== 1) throw new Error('Transaction reverted.')
     const remaining = await vault.remainingAllowance(currentPermissionId)
-    setStatus('Subscribed \u2713 Remaining allowance: ' + ethers.formatEther(remaining) + ' mUSD.')
-    $('subscribeBtn').textContent = 'Subscribed \u2713'
+    setStatus('Spender pulled payment \u2713 Remaining allowance: ' + ethers.formatEther(remaining) + ' tokens.')
+    $('subscribeBtn').textContent = 'Called \u2713'
     $('subscribeBtn').classList.add('opacity-50', 'cursor-not-allowed')
     await loadPermissions()
   } catch (err) {
     console.error(err)
-    setStatus('Subscribe failed: ' + (err.shortMessage || err.reason || err.message))
+    setStatus('Call failed: ' + (err.shortMessage || err.reason || err.message))
     $('subscribeBtn').disabled = false
   }
 }
@@ -399,12 +445,14 @@ async function runScanner() {
 
     const tokenSpenders = []
 
+    const latest = await provider.getBlockNumber()
+    const fromBlock = Math.max(0, latest - 50000)
+
     for (const t of KNOWN_TOKENS) {
       try {
         const tokenContract = new ethers.Contract(t.address, ERC20_SCANNER_ABI, provider)
         const filter = tokenContract.filters.Approval(userAddress)
-        const logs = await tokenContract.queryFilter(filter, 0, 'latest')
-        const seen = new Set()
+        const logs = await tokenContract.queryFilter(filter, fromBlock, 'latest')
         for (const log of logs) {
           const spender = log.args.spender.toLowerCase()
           if (!seen.has(spender)) {
