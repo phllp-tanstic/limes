@@ -1,0 +1,1195 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limes — Bounded Token Approvals</title>
+    <meta name="description" content="Replace unlimited ERC-20 approvals with capped, expiring permissions that keep you in control.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="m-0 overflow-x-hidden bg-[#F8F9F5] font-['DM_Mono'] text-[#111827] antialiased selection:bg-[#8EB364] selection:text-[#161F14]">
+    <header class="sticky top-0 z-50 border-b border-[#161F14]/10 bg-[#F8F9F5]/90 backdrop-blur-xl">
+      <div class="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
+        <a href="#" class="flex items-center gap-3 text-[#162512]" aria-label="Limes home">
+          <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/ac3edf03-4333-45fe-b07f-b82f48da012a_1600w.png" alt="Limes Logo" class="h-9 w-auto object-contain rounded-lg shadow-sm">
+          <span class="font-['Cormorant_Garamond'] text-3xl font-semibold tracking-tight">
+            Limes
+          </span>
+        </a>
+
+        <nav class="hidden items-center gap-9 text-sm text-[#253021] lg:flex" aria-label="Primary navigation">
+          <a href="#product" class="transition-colors hover:text-[#6D9145]">
+            Product
+          </a>
+          <a href="#how-it-works" class="transition-colors hover:text-[#6D9145]">
+            How it works
+          </a>
+          <a href="#features" class="transition-colors hover:text-[#6D9145]">
+            Features
+          </a>
+
+          <a href="#developers" class="transition-colors hover:text-[#6D9145]">Documentation</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <button type="button" id="limes-mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false" onclick="var m=document.getElementById('limes-mobile-menu');var open=m.classList.toggle('flex');m.classList.toggle('hidden');this.setAttribute('aria-expanded', open ? 'true' : 'false');var ic=this.querySelector('i');ic.setAttribute('data-lucide', open ? 'x' : 'menu');lucide.createIcons({attrs:{'stroke-width':1.5}});" class="grid h-11 w-11 place-items-center rounded-lg text-[#162512] transition-colors hover:bg-[#162512]/5 lg:hidden">
+            <i data-lucide="menu" class="h-5 w-5" stroke-width="1.5"></i>
+          </button>
+          <a href="#demo" class="hidden rounded-lg px-4 py-3 text-sm text-[#253021] transition-colors hover:bg-[#162512]/5 sm:inline-flex">
+            View demo
+          </a>
+          <button type="button" id="connectWalletBtn" class="inline-flex items-center gap-2 rounded-lg bg-[#162512] px-4 py-3 text-sm font-medium text-[#CFE8AE] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#21371A]"><span id="connectWalletLabel">Connect Wallet</span><i data-lucide="arrow-up-right" class="h-4 w-4" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+      <div id="limes-mobile-menu" class="hidden w-full flex-col gap-1 border-t border-[#161F14]/10 bg-[#F8F9F5] px-5 py-4 sm:px-8 lg:hidden">
+        <a href="#product" class="rounded-lg px-4 py-3 text-sm text-[#253021] transition-colors hover:bg-[#162512]/5">
+          Product
+        </a>
+        <a href="#how-it-works" class="rounded-lg px-4 py-3 text-sm text-[#253021] transition-colors hover:bg-[#162512]/5">
+          How it works
+        </a>
+        <a href="#features" class="rounded-lg px-4 py-3 text-sm text-[#253021] transition-colors hover:bg-[#162512]/5">
+          Features
+        </a>
+        <a href="#developers" class="rounded-lg px-4 py-3 text-sm text-[#253021] transition-colors hover:bg-[#162512]/5">
+          Developers
+        </a>
+        <a href="#demo" class="rounded-lg px-4 py-3 text-sm text-[#253021] transition-colors hover:bg-[#162512]/5 sm:hidden">
+          View demo
+        </a>
+      </div>
+    </header>
+
+    <main class="">
+      <section class="relative px-4 pt-4 sm:px-6">
+        <div class="relative mx-auto min-h-[700px] max-w-[1500px] overflow-hidden bg-[#F2F6EA] px-5 pb-14 pt-14 sm:min-h-[800px] sm:px-10 sm:pb-20 sm:pt-20 lg:min-h-[960px] lg:px-16 lg:pt-24 rounded-[34px]" style="clip-path: none;">
+          <div class="pointer-events-none absolute opacity-50 inset-[14px]" style="background-image:radial-gradient(circle at 50% 45%,rgba(142,179,100,.24),transparent 34%),linear-gradient(rgba(22,31,20,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(22,31,20,.035) 1px,transparent 1px);background-size:auto,64px 64px,64px 64px"></div>
+          <div class="pointer-events-none absolute inset-0 z-[5]" aria-hidden="true">
+            <svg class="absolute left-14 right-14 top-[10px] h-px w-[calc(100%-7rem)] overflow-visible" preserveAspectRatio="none">
+              <line x1="0" y1="0.5" x2="100%" y2="0.5" stroke="#162512" stroke-opacity="0.24" vector-effect="non-scaling-stroke"></line></svg><svg class="absolute bottom-[10px] left-14 right-14 h-px w-[calc(100%-7rem)] overflow-visible" preserveAspectRatio="none">
+              <line x1="0" y1="0.5" x2="100%" y2="0.5" stroke="#162512" stroke-opacity="0.24" vector-effect="non-scaling-stroke"></line></svg><svg class="absolute bottom-14 left-[10px] top-14 h-[calc(100%-7rem)] w-px overflow-visible" preserveAspectRatio="none">
+              <line x1="0.5" y1="0" x2="0.5" y2="100%" stroke="#162512" stroke-opacity="0.24" vector-effect="non-scaling-stroke"></line></svg><svg class="absolute bottom-14 right-[10px] top-14 h-[calc(100%-7rem)] w-px overflow-visible" preserveAspectRatio="none">
+              <line x1="0.5" y1="0" x2="0.5" y2="100%" stroke="#162512" stroke-opacity="0.24" vector-effect="non-scaling-stroke"></line></svg><svg viewBox="0 0 56 56" class="absolute left-0 top-0 h-14 w-14" fill="none">
+              <path d="M56 10 H 42 M 34 10 A 24 24 0 0 0 10 34 M 10 42 V 56" stroke="#162512" stroke-opacity="0.28" vector-effect="non-scaling-stroke"></path>
+              <path d="M 34 16 A 18 18 0 0 0 16 34 M 34 6 v 8 M 6 34 h 8 M 20 13 h 3 M 13 20 v 3" stroke="#162512" stroke-opacity="0.16" vector-effect="non-scaling-stroke"></path></svg><svg viewBox="0 0 56 56" class="absolute right-0 top-0 h-14 w-14" fill="none" style="transform:scaleX(-1)">
+              <path d="M56 10 H 42 M 34 10 A 24 24 0 0 0 10 34 M 10 42 V 56" stroke="#162512" stroke-opacity="0.28" vector-effect="non-scaling-stroke"></path>
+              <path d="M 34 16 A 18 18 0 0 0 16 34 M 34 6 v 8 M 6 34 h 8 M 20 13 h 3 M 13 20 v 3" stroke="#162512" stroke-opacity="0.16" vector-effect="non-scaling-stroke"></path></svg><svg viewBox="0 0 56 56" class="absolute bottom-0 left-0 h-14 w-14" fill="none" style="transform:scaleY(-1)">
+              <path d="M56 10 H 42 M 34 10 A 24 24 0 0 0 10 34 M 10 42 V 56" stroke="#162512" stroke-opacity="0.28" vector-effect="non-scaling-stroke"></path>
+              <path d="M 34 16 A 18 18 0 0 0 16 34 M 34 6 v 8 M 6 34 h 8 M 20 13 h 3 M 13 20 v 3" stroke="#162512" stroke-opacity="0.16" vector-effect="non-scaling-stroke"></path></svg><svg viewBox="0 0 56 56" class="absolute bottom-0 right-0 h-14 w-14" fill="none" style="transform:scale(-1)">
+              <path d="M56 10 H 42 M 34 10 A 24 24 0 0 0 10 34 M 10 42 V 56" stroke="#162512" stroke-opacity="0.28" vector-effect="non-scaling-stroke"></path>
+              <path d="M 34 16 A 18 18 0 0 0 16 34 M 34 6 v 8 M 6 34 h 8 M 20 13 h 3 M 13 20 v 3" stroke="#162512" stroke-opacity="0.16" vector-effect="non-scaling-stroke"></path>
+            </svg>
+          </div>
+
+          <div class="absolute inset-y-0 left-0 hidden w-5 flex-col justify-around py-4 lg:flex" aria-hidden="true">
+            <span class="h-px w-3 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-4 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-3 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-4 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-3 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-4 bg-[#162512]"></span>
+          </div>
+          <div class="absolute inset-y-0 right-0 hidden w-5 flex-col items-end justify-around py-4 lg:flex" aria-hidden="true">
+            <span class="h-px w-3 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-4 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-3 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-4 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-3 bg-[#162512]"></span>
+            <span class="h-px w-2 bg-[#162512]"></span>
+            <span class="h-px w-4 bg-[#162512]"></span>
+          </div>
+
+          <div class="relative z-10 mx-auto max-w-6xl text-center">
+            <h1 class="mx-auto max-w-5xl font-['Cormorant_Garamond'] text-5xl font-medium leading-[0.95] tracking-tight text-[#10180D] sm:text-6xl sm:leading-[0.92] md:text-7xl lg:text-8xl">
+              Bounded Token
+              <br>
+              Approvals.
+            </h1>
+          </div>
+
+          <div class="relative z-10 mx-auto mt-8 h-[360px] max-w-5xl sm:h-[420px] lg:mt-3 lg:h-[460px]">
+            <div class="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#8EB364]/20 blur-3xl sm:h-96 sm:w-96"></div>
+
+            <div class="absolute left-1/2 top-1/2 h-[330px] w-[330px] -translate-x-1/2 -translate-y-1/2 sm:h-[430px] sm:w-[430px]" role="img" aria-label="A floating Monad token surrounded by precision-engineered geometric arcs representing programmable permission boundaries">
+              <style>
+                @keyframes limesFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+                @keyframes limesSystem { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(1.5deg); } }
+                @keyframes limesLock { 0%, 100% { transform: translate(0, -6px); } 50% { transform: translate(0, -12px); } }
+                @keyframes limesFloorShadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(0.95); opacity: 0.7; } }
+                .limes-float { animation: limesFloat 10s ease-in-out infinite; transform-origin: 250px 250px; }
+                .limes-system-anim { animation: limesSystem 14s ease-in-out infinite; transform-origin: 250px 250px; }
+                .limes-lock-anim { animation: limesLock 8s ease-in-out infinite; transform-origin: 250px 250px; }
+                .limes-floor-shadow { animation: limesFloorShadow 10s ease-in-out infinite; transform-origin: 250px 450px; }
+                @media (prefers-reduced-motion: reduce) { .limes-float, .limes-system-anim, .limes-lock-anim, .limes-floor-shadow { animation: none; } }
+              </style>
+              <svg viewBox="0 0 500 500" class="h-full w-full overflow-visible drop-shadow-[0_24px_40px_rgba(22,31,20,0.06)]" fill="none" aria-hidden="true">
+                <defs>
+                  <filter id="limes-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="12" stdDeviation="15" flood-color="#162512" flood-opacity="0.08"></feDropShadow>
+                  </filter>
+                  <filter id="limes-sharp-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#162512" flood-opacity="0.12"></feDropShadow>
+                  </filter>
+                  <linearGradient id="limes-metal-base" x1="0" y1="0" x2="500" y2="500" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFFFFF"></stop>
+                    <stop offset="0.5" stop-color="#EBF0E6"></stop>
+                    <stop offset="1" stop-color="#D1DAC9"></stop>
+                  </linearGradient>
+                  <linearGradient id="limes-metal-dark" x1="0" y1="0" x2="500" y2="500" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#CBD5C2"></stop>
+                    <stop offset="1" stop-color="#9EAC94"></stop>
+                  </linearGradient>
+                  <linearGradient id="limes-ceramic" x1="150" y1="150" x2="350" y2="350" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFFFFF"></stop>
+                    <stop offset="1" stop-color="#EDF2E8"></stop>
+                  </linearGradient>
+                  <linearGradient id="limes-green" x1="0" y1="0" x2="1" y2="1">
+                    <stop stop-color="#A5C97A"></stop>
+                    <stop offset="1" stop-color="#739649"></stop>
+                  </linearGradient>
+                </defs>
+
+                <ellipse class="limes-floor-shadow" cx="250" cy="450" rx="120" ry="20" fill="#162512" fill-opacity="0.1" filter="url(#limes-soft-shadow)"></ellipse>
+
+                <g class="limes-float">
+                  <g class="limes-system-anim">
+                    <!-- Outer Track Base -->
+                    <circle cx="250" cy="250" r="200" fill="none" stroke="#D1DAC9" stroke-width="1.5" stroke-dasharray="4 12" stroke-opacity="0.6"></circle>
+
+                    <!-- Revocability Segment -->
+                    <g class="limes-lock-anim">
+                      <!-- Main block -->
+                      <circle cx="250" cy="250" r="200" fill="none" stroke="url(#limes-metal-dark)" stroke-width="16" stroke-linecap="round" stroke-dasharray="160 1256.6" transform="rotate(247 250 250)" filter="url(#limes-sharp-shadow)" class=""></circle>
+                      <!-- Inner highlight -->
+                      <circle cx="250" cy="250" r="200" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-dasharray="140 1256.6" transform="rotate(250 250 250)" stroke-opacity="0.8"></circle>
+                      <!-- Mechanical notch -->
+                      <path d="M 247 47 L 253 47 L 253 53 L 247 53 Z" fill="#8EB364"></path>
+                    </g>
+
+                    <!-- Expiry Track -->
+                    <g transform="rotate(110 250 250)">
+                      <!-- Channel -->
+                      <circle cx="250" cy="250" r="165" fill="none" stroke="url(#limes-metal-base)" stroke-width="20" stroke-linecap="round" stroke-dasharray="450 1036.7" filter="url(#limes-soft-shadow)"></circle>
+                      <!-- Timeline fill -->
+                      <circle cx="250" cy="250" r="165" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-dasharray="280 1036.7" transform="rotate(10 250 250)"></circle>
+                      <!-- Start node -->
+                      <g transform="rotate(10 250 250)">
+                        <circle cx="415" cy="250" r="4" fill="#8EB364"></circle>
+                      </g>
+                      <!-- End node -->
+                      <g transform="rotate(107.2 250 250)">
+                        <circle cx="415" cy="250" r="7" fill="#FFFFFF" stroke="#8EB364" stroke-width="3"></circle>
+                      </g>
+                    </g>
+
+                    <!-- Spending Cap Track -->
+                    <g transform="rotate(-40 250 250)">
+                      <!-- Groove -->
+                      <circle cx="250" cy="250" r="130" fill="none" stroke="url(#limes-metal-base)" stroke-width="16" stroke-linecap="round" stroke-dasharray="350 816.8" filter="url(#limes-soft-shadow)"></circle>
+                      <!-- Cap Value -->
+                      <circle cx="250" cy="250" r="130" fill="none" stroke="url(#limes-green)" stroke-width="16" stroke-linecap="round" stroke-dasharray="200 816.8"></circle>
+                      <!-- Stop Block at End of Groove -->
+                      <g transform="rotate(154.2 250 250)">
+                        <rect x="375" y="242" width="10" height="16" rx="4" fill="#CBD5C2"></rect>
+                      </g>
+                      <!-- Marker at current cap -->
+                      <g transform="rotate(88.1 250 250)">
+                        <rect x="372" y="246" width="16" height="8" rx="4" fill="#162512"></rect>
+                      </g>
+                    </g>
+
+                    <!-- Center Coin -->
+                    <circle cx="250" cy="250" r="95" fill="url(#limes-metal-base)" filter="url(#limes-soft-shadow)"></circle>
+                    <circle cx="250" cy="250" r="93" fill="url(#limes-ceramic)" class=""></circle>
+                    <!-- Detail Rings -->
+                    <circle cx="250" cy="250" r="82" fill="none" stroke="#E6EBE1" stroke-width="1.5"></circle>
+                    <circle cx="250" cy="250" r="77" fill="none" stroke="#F4F7F0" stroke-width="3"></circle>
+
+                    <!-- Monad Logo -->
+                    <g transform="translate(0, -6)">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M250 181c11 0 18 5 27 15l31 35c9 10 9 19 0 29l-31 35c-9 10-16 15-27 15s-18-5-27-15l-31-35c-9-10-9-19 0-29l31-35c9-10 16-15 27-15Zm0 27c-4 0-7 2-11 7l-23 25c-4 5-4 7 0 12l23 25c4 5 7 7 11 7s7-2 11-7l23-25c4-5 4-7 0-12l-23-25c-4-5-7-7-11-7Z" fill="#2E3F24"></path>
+                    </g>
+                    <text x="250" y="315" text-anchor="middle" fill="#586A4C" font-family="DM Mono, monospace" font-size="11" font-weight="500" letter-spacing="3">
+                      MONAD
+                    </text>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <div class="absolute left-0 top-1/2 hidden w-64 -translate-y-1/2 space-y-3 rounded-lg border border-[#162512]/20 bg-[#F7FAF2]/85 p-5 text-left shadow-[0_20px_45px_rgba(22,31,20,0.1)] backdrop-blur-xl md:block lg:left-6">
+              <div class="flex items-center justify-between text-xs uppercase tracking-wider text-[#52604D]">
+                <span>Permission ID</span>
+                <span class="h-2 w-2 rounded-full bg-[#8EB364]"></span>
+              </div>
+              <p class="text-sm text-[#162512]">0x7A4F...91C2</p>
+              <div class="h-px bg-[#162512]/10"></div>
+              <div class="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                  <p class="text-[#687464]">CAP</p>
+                  <p class="mt-1 text-sm text-[#162512]">$250.00</p>
+                </div>
+                <div>
+                  <p class="text-[#687464]">EXPIRES</p>
+                  <p class="mt-1 text-sm text-[#162512]">30 DAYS</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="absolute right-0 top-[42%] w-60 rounded-lg border border-white/70 bg-white/85 p-5 text-left shadow-[0_22px_55px_rgba(22,31,20,0.13)] backdrop-blur-xl sm:w-72 lg:right-4 hidden md:block">
+              <div class="mb-5 flex items-center gap-3">
+                <span class="grid h-10 w-10 place-items-center rounded-lg bg-[#162512] text-[#B9D998]">
+                  <i data-lucide="shield-check" class="h-5 w-5" stroke-width="1.5"></i>
+                </span>
+                <div class="">
+                  <p class="text-sm text-[#162512]">Approval protected</p>
+                  <p class="mt-1 text-xs text-[#6B7567]">
+                    Policy enforced onchain
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-end justify-between border-t border-[#162512]/10 pt-4">
+                <div>
+                  <p class="text-xs uppercase tracking-wider text-[#6B7567]">
+                    Maximum exposure
+                  </p>
+                  <p class="mt-1 font-['Cormorant_Garamond'] text-3xl font-semibold tracking-tight text-[#162512]">
+                    $250.00
+                  </p>
+                </div>
+                <span class="rounded-full bg-[#DDECCB] px-3 py-1.5 text-xs text-[#365322]">
+                  Bounded
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative z-10 mx-auto max-w-3xl text-center">
+            <p class="leading-8 sm:text-base text-base text-[#45513F]">
+              Built on Monad, Limes replaces blanket ERC-20 approvals with
+              permission-based authorizations that are bounded by spending
+              limits, expiry, and explicit transaction context.
+            </p>
+            <div class="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <a href="#cta" class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#162512] px-6 py-4 text-sm font-medium text-[#CFE8AE] shadow-lg shadow-[#162512]/10 transition-all hover:-translate-y-0.5 hover:bg-[#22381B]">
+                Protect my wallet
+                <i data-lucide="arrow-right" class="h-4 w-4" stroke-width="1.5"></i>
+              </a>
+              <a href="#demo" class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#162512]/20 bg-white/45 px-6 py-4 text-sm text-[#162512] backdrop-blur-sm transition-all hover:bg-white/80">
+                <i data-lucide="play" class="h-4 w-4" stroke-width="1.5"></i>
+                View demo
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="product" class="px-5 py-16 sm:px-8 sm:py-20 lg:py-32">
+        <div class="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-24">
+          <div class="">
+            <h2 class="font-['Cormorant_Garamond'] text-5xl font-medium leading-none tracking-tight text-[#162512] sm:text-6xl">
+              Every wallet has a permission problem.
+            </h2>
+          </div>
+          <div class="space-y-6 text-base leading-8 text-[#4B5563] sm:text-lg">
+            <p class="text-[#263022]">
+              The biggest wallet drains rarely begin with a broken blockchain.
+              They begin with a permission you approved months ago.
+            </p>
+            <p>
+              Today's ERC-20 approval model forces users into an impossible
+              choice: approve every transaction individually, or give
+              applications unlimited access indefinitely.
+            </p>
+            <p class="font-['Cormorant_Garamond'] text-3xl font-medium leading-tight tracking-tight text-[#162512]">
+              Limes makes the safer choice just as convenient.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-[#162512] px-5 py-16 text-[#ECF3E5] sm:px-8 sm:py-20 lg:py-32">
+        <div class="mx-auto max-w-7xl">
+          <div class="grid items-center gap-16 lg:grid-cols-[1fr_1.4fr]">
+            <div class="lg:pr-8">
+              <h2 class="leading-none sm:text-4xl text-5xl font-medium text-[#ECF3E5] tracking-tight font-['Cormorant_Garamond']">
+                From binary approvals to programmable permissions.
+              </h2>
+              <div class="mt-8 space-y-6 text-base leading-8 text-[#B8C1B3]">
+                <p class="">
+                  ERC-20 approvals are binary—they can only answer whether a
+                  contract can spend your tokens, not what you actually
+                  intended.
+                </p>
+                <p class="">
+                  Forgotten or exploited approvals become the attack surface.
+                  Cleanup tools only help after the mistake has already
+                  happened. Limes makes boundaries the default.
+                </p>
+              </div>
+              <div class="mt-10 flex flex-col gap-4">
+                <div class="flex items-center gap-3 text-sm text-[#ECF3E5]">
+                  <i data-lucide="circle-check" class="h-5 w-5 text-[#8EB364]" stroke-width="1.5"></i>
+                  A maximum spend
+                </div>
+                <div class="flex items-center gap-3 text-sm text-[#ECF3E5]">
+                  <i data-lucide="circle-check" class="h-5 w-5 text-[#8EB364]" stroke-width="1.5"></i>
+                  Mandatory expiry
+                </div>
+                <div class="flex items-center gap-3 text-sm text-[#ECF3E5]">
+                  <i data-lucide="circle-check" class="h-5 w-5 text-[#8EB364]" stroke-width="1.5"></i>
+                  Recurring limits
+                </div>
+                <div class="flex items-center gap-3 text-sm text-[#ECF3E5]">
+                  <i data-lucide="circle-check" class="h-5 w-5 text-[#8EB364]" stroke-width="1.5"></i>
+                  Instant revocation
+                </div>
+              </div>
+              <a href="#cta" class="mt-10 inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10">
+                Learn more
+              </a>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-[1.1fr_0.9fr]">
+              <div class="flex flex-col gap-3">
+                <div class="flex min-h-[180px] flex-col text-center border-white/10 border rounded-lg pt-8 pr-8 pb-8 pl-8 items-center justify-center">
+                  <span class="mb-5 grid h-10 w-10 place-items-center rounded-lg bg-[#8EB364] text-[#162512]">
+                    <i data-lucide="sparkles" class="h-5 w-5" stroke-width="1.5"></i>
+                  </span>
+                  <p class="mb-4 font-mono text-[11px] uppercase tracking-widest text-[#B8C1B3]">
+                    Analyzing your approval...
+                  </p>
+                  <div class="flex items-center gap-1.5">
+                    <span class="h-1 w-10 rounded-full bg-[#8EB364]"></span>
+                    <span class="h-1 w-16 rounded-full bg-[#8EB364]"></span>
+                    <span class="h-1 w-3 rounded-full bg-[#8EB364]"></span>
+                    <span class="h-1 w-8 rounded-full bg-white/20"></span>
+                  </div>
+                </div>
+                <div class="rounded-lg border border-white/10 bg-white/[0.03] px-5 py-4">
+                  <p class="mb-1.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[#B8C1B3]">
+                    <span class="text-[8px] text-[#8EB364]">▶</span>
+                    Approval Created
+                  </p>
+                  <p class="font-mono text-xs uppercase text-[#ECF3E5]">
+                    Uniswap Router
+                  </p>
+                </div>
+                <div class="rounded-lg border border-white/10 bg-white/[0.03] px-5 py-4">
+                  <p class="mb-1.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[#B8C1B3]">
+                    <span class="text-[8px] text-[#8EB364]">▶</span>
+                    Spend Limit Set
+                  </p>
+                  <p class="font-mono text-xs uppercase text-[#ECF3E5]">
+                    $50 max
+                  </p>
+                </div>
+                <div class="rounded-lg border border-white/10 bg-white/[0.03] px-5 py-4">
+                  <p class="mb-1.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[#B8C1B3]">
+                    <span class="text-[8px] text-[#8EB364]">▶</span>
+                    Expiry Triggered
+                  </p>
+                  <p class="font-mono text-xs uppercase text-[#ECF3E5]">
+                    30 days
+                  </p>
+                </div>
+                <div class="rounded-lg border border-white/10 bg-white/[0.03] px-5 py-4">
+                  <p class="mb-1.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[#B8C1B3]">
+                    <span class="text-[8px] text-[#8EB364]">▶</span>
+                    Revocation
+                  </p>
+                  <p class="font-mono text-xs uppercase text-[#ECF3E5]">
+                    Instant
+                  </p>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3">
+                <div class="flex flex-1 items-center justify-between rounded-lg bg-white p-5 text-[#162512] shadow-sm">
+                  <div>
+                    <p class="text-sm font-semibold">Approvals Monitored</p>
+                    <p class="mt-1 text-[11px] text-[#6B7567]">
+                      Across all networks
+                    </p>
+                  </div>
+                  <p class="font-['Cormorant_Garamond'] text-3xl font-bold tracking-tight">
+                    ~274
+                  </p>
+                </div>
+                <div class="flex flex-1 items-center justify-between rounded-lg bg-white p-5 text-[#162512] shadow-sm">
+                  <div>
+                    <p class="text-sm font-semibold">Avg. Spend Limit</p>
+                    <p class="mt-1 text-[11px] text-[#6B7567]">
+                      Per authorization
+                    </p>
+                  </div>
+                  <p class="font-['Cormorant_Garamond'] text-3xl font-bold tracking-tight">
+                    $50
+                  </p>
+                </div>
+                <div class="flex flex-1 items-center justify-between rounded-lg bg-white p-5 text-[#162512] shadow-sm">
+                  <div>
+                    <p class="text-sm font-semibold">Policy Enforced</p>
+                    <p class="mt-1 text-[11px] text-[#6B7567]">
+                      Execution layer
+                    </p>
+                  </div>
+                  <p class="font-['Cormorant_Garamond'] text-2xl font-bold tracking-tight">
+                    On-chain
+                  </p>
+                </div>
+                <div class="flex flex-1 items-center justify-between rounded-lg bg-white p-5 text-[#162512] shadow-sm">
+                  <div>
+                    <p class="text-sm font-semibold">Cleanup Status</p>
+                    <p class="mt-1 text-[11px] text-[#6B7567]">
+                      Dormant approvals
+                    </p>
+                  </div>
+                  <p class="font-['Cormorant_Garamond'] text-2xl font-bold tracking-tight">
+                    Active
+                  </p>
+                </div>
+                <button class="mt-2 w-full rounded-lg bg-[#8EB364] py-4 text-sm font-semibold text-[#162512] shadow-sm transition-colors hover:bg-[#9FC477]">
+                  Create Policy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-it-works" class="px-5 py-16 sm:px-8 sm:py-20 lg:py-32">
+        <div class="mx-auto max-w-7xl">
+          <div class="max-w-3xl">
+            <p class="mb-5 text-xs uppercase tracking-[0.22em] text-[#668448]">
+              How it works
+            </p>
+            <h2 class="font-['Cormorant_Garamond'] text-5xl font-medium leading-none tracking-tight text-[#162512] sm:text-6xl">
+              One approval. Bounded forever.
+            </h2>
+          </div>
+
+          <div class="mt-16 grid overflow-hidden rounded-lg border border-[#162512]/15 bg-white lg:grid-cols-4 md:grid-cols-2">
+            <article class="group border-b border-[#162512]/10 p-7 transition-colors hover:bg-[#F0F5E9] lg:border-b-0 lg:border-r">
+              <span class="grid h-11 w-11 place-items-center rounded-lg bg-[#162512] text-[#BBDD99]">
+                <i data-lucide="wallet" class="h-5 w-5" stroke-width="1.5"></i>
+              </span>
+              <p class="mt-10 text-xs text-[#6C7A66]">STEP 01</p>
+              <h3 class="mt-3 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                Connect your wallet.
+              </h3>
+              <p class="mt-4 text-sm leading-7 text-[#5B6657]">
+                Authorize the open-source Limes contract once. Your assets
+                remain entirely under your control.
+              </p>
+            </article>
+            <article class="group border-b border-[#162512]/10 p-7 transition-colors hover:bg-[#F0F5E9] lg:border-b-0 lg:border-r">
+              <span class="grid h-11 w-11 place-items-center rounded-lg bg-[#DDECCB] text-[#365322]">
+                <i data-lucide="sliders-horizontal" class="h-5 w-5" stroke-width="1.5"></i>
+              </span>
+              <p class="mt-10 text-xs text-[#6C7A66]">STEP 02</p>
+              <h3 class="mt-3 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                Set real boundaries.
+              </h3>
+              <p class="mt-4 text-sm leading-7 text-[#5B6657]">
+                Choose the amount, expiry, and whether a permission should renew
+                on a recurring schedule.
+              </p>
+            </article>
+            <article class="group border-b border-[#162512]/10 p-7 transition-colors hover:bg-[#F0F5E9] lg:border-b-0 lg:border-r">
+              <span class="grid h-11 w-11 place-items-center rounded-lg bg-[#DDECCB] text-[#365322]">
+                <i data-lucide="scan-search" class="h-5 w-5" stroke-width="1.5"></i>
+              </span>
+              <p class="mt-10 text-xs text-[#6C7A66]">STEP 03</p>
+              <h3 class="mt-3 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                Understand the risk.
+              </h3>
+              <p class="mt-4 text-sm leading-7 text-[#5B6657]">
+                See dollar exposure and contextual facts about the spender
+                before the approval is created.
+              </p>
+            </article>
+            <article class="group p-7 transition-colors hover:bg-[#F0F5E9]">
+              <span class="grid h-11 w-11 place-items-center rounded-lg bg-[#DDECCB] text-[#365322]">
+                <i data-lucide="shield-check" class="h-5 w-5" stroke-width="1.5"></i>
+              </span>
+              <p class="mt-10 text-xs text-[#6C7A66]">STEP 04</p>
+              <h3 class="mt-3 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                Stay in control.
+              </h3>
+              <p class="mt-4 text-sm leading-7 text-[#5B6657]">
+                Review every permission, revoke instantly, and remove dormant
+                approvals before they become liabilities.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="demo" class="px-5 pb-16 sm:px-8 sm:pb-20 lg:pb-32">
+        <div class="mx-auto grid max-w-7xl overflow-hidden rounded-lg bg-[#CBD5C2] lg:grid-cols-[0.85fr_1.15fr]">
+          <div class="p-8 sm:p-12 lg:p-16">
+            <p class="text-xs uppercase tracking-[0.22em] text-[#506646]">
+              Approval preview
+            </p>
+            <h2 class="mt-5 font-['Cormorant_Garamond'] text-5xl font-medium leading-none tracking-tight text-[#162512]">
+              Know what is at risk before you sign.
+            </h2>
+            <p class="mt-7 text-base leading-8 text-[#485743]">
+              No percentages. No guesswork. Just a real number based on live
+              balances and token prices.
+            </p>
+          </div>
+
+          <div class="bg-[#1A2517] p-5 sm:p-10">
+            <div class="mx-auto max-w-lg rounded-lg border border-white/10 bg-[#F8FAF5] p-6 shadow-2xl">
+              <div class="flex items-center justify-between">
+                <div class="">
+                  <p class="text-xs uppercase tracking-wider text-[#687464]">
+                    Permission request
+                  </p>
+                  <p class="mt-2 text-sm text-[#162512]"></p>
+                    Limes Subscription Demo · <span id="subAddressDisplay">not connected</span>
+                  </p>
+                </div>
+                <span class="rounded-full bg-[#E4EEDB] px-3 py-2 text-xs text-[#3D592B]">
+                  Monad testnet
+                </span>
+              </div>
+              <div class="my-6 h-px bg-[#162512]/10"></div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="rounded-lg border border-[#162512]/10 p-4">
+                  <p class="text-xs text-[#697565]">SPENDING CAP</p>
+                  <div class="mt-2 flex items-baseline gap-1">
+                    <input id="capInput" type="number" min="1" value="250" class="w-20 bg-transparent font-['Cormorant_Garamond'] text-3xl font-semibold tracking-tight text-[#162512] focus:outline-none" />
+                    <span class="text-sm text-[#697565]">mUSD</span>
+                  </div>
+                </div>
+                <div class="rounded-lg border border-[#162512]/10 p-4">
+                  <p class="text-xs text-[#697565]">EXPIRY</p>
+                  <div class="mt-2 flex items-baseline gap-1">
+                    <input id="expiryInput" type="number" min="1" value="30" class="w-14 bg-transparent font-['Cormorant_Garamond'] text-3xl font-semibold tracking-tight text-[#162512] focus:outline-none" />
+                    <span class="text-sm text-[#697565]">days</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 rounded-lg bg-[#162512] p-5 text-white">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-[#AEBBA9]">MAXIMUM DOLLAR EXPOSURE</span>
+                  <i data-lucide="activity" class="h-4 w-4 text-[#A6D17B]" stroke-width="1.5"></i>
+                </div>
+                <p class="mt-3 font-['Cormorant_Garamond'] text-5xl font-medium tracking-tight" id="exposureDisplay">
+                  $250.00
+                </p>
+                <p class="mt-3 text-xs text-[#AEBBA9]" id="demoStatus">
+                  Connect your wallet to begin.
+                </p>
+              </div>
+              <button type="button" id="demoActionBtn" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#8EB364] px-5 py-4 text-sm font-medium text-[#162512] transition-colors hover:bg-[#9FC477] disabled:opacity-60">
+                <span id="demoActionLabel">Create bounded approval</span>
+                <i data-lucide="arrow-right" class="h-4 w-4" stroke-width="1.5"></i>
+              </button>
+              <div id="postGrantActions" class="mt-3 hidden gap-3">
+                <button type="button" id="subscribeBtn" class="flex-1 rounded-lg border border-[#162512]/20 bg-white px-4 py-3 text-sm font-medium text-[#162512] hover:bg-[#F0F5E9]">
+                  Subscribe now
+                </button>
+                <button type="button" id="revokeBtn" class="flex-1 rounded-lg border border-[#993C1D]/30 bg-white px-4 py-3 text-sm font-medium text-[#993C1D] hover:bg-[#FAECE7]">
+                  Revoke permission
+                </button>
+              </div>
+            </div>
+          </div>
+      </section>
+
+      <section id="permissions" class="px-5 pb-16 sm:px-8 sm:pb-20">
+  <div id="permissionsPanel" class="hidden mx-auto max-w-7xl">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <p class="text-xs uppercase tracking-[0.22em] text-[#668448] mb-2">Your permissions</p>
+        <p class="font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]" id="permissionsSummary">Loading...</p>
+      </div>
+      <button
+        type="button"
+        id="refreshPermissionsBtn"
+        class="hidden rounded-lg px-4 py-3 text-sm text-[#253021] transition-colors hover:bg-[#162512]/5"
+      >
+        Refresh
+      </button>
+    </div>
+
+    <div class="overflow-hidden rounded-lg border border-[#162512]/10">
+      <button
+        type="button"
+        id="permissionsToggleBtn"
+        class="w-full flex items-center justify-between bg-[#F8FAF5] px-6 py-4 text-left transition-colors hover:bg-[#F0F5E9]"
+      >
+        <div class="flex items-center gap-3">
+          <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#162512] text-[#B6D58F]">
+            <i data-lucide="shield-check" class="h-5 w-5" stroke-width="1.5"></i>
+          </span>
+          <span class="text-sm text-[#162512]">Permission history</span>
+        </div>
+        <i data-lucide="chevron-down" id="permissionsChevron" class="h-4 w-4 text-[#687464] transition-transform duration-200" stroke-width="1.5"></i>
+      </button>
+
+      <div id="permissionsDropdown" class="hidden">
+        <div class="h-px bg-[#162512]/10"></div>
+        <div id="permissionsList" class="divide-y divide-[#162512]/8 bg-white"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="scanner" class="px-5 py-16 sm:px-8 sm:py-20 lg:py-32">
+  <div class="mx-auto max-w-7xl">
+    <div class="grid gap-8 lg:grid-cols-2 mb-12">
+      <div>
+        <p class="mb-5 text-xs uppercase tracking-[0.22em] text-[#668448]">
+          Approval scanner
+        </p>
+        <h2 class="font-['Cormorant_Garamond'] text-5xl font-medium leading-none tracking-tight text-[#162512] sm:text-6xl">
+          What have you already approved?
+        </h2>
+      </div>
+      <p class="max-w-xl self-end text-base leading-8 text-[#566052]">
+        Limes scans your wallet for existing unlimited or active approvals across common Monad tokens — the ones granted before you started using Limes. Reads are batched via Multicall3 for speed.
+      </p>
+    </div>
+
+    <div id="scannerConnect" class="rounded-lg border border-[#162512]/10 bg-white p-10 text-center">
+      <span class="grid h-12 w-12 place-items-center rounded-lg bg-[#F2F6EA] text-[#648347] mx-auto mb-5">
+        <i data-lucide="scan-search" class="h-6 w-6" stroke-width="1.5"></i>
+      </span>
+      <p class="font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512] mb-3">
+        Connect your wallet to scan
+      </p>
+      <p class="text-sm leading-7 text-[#5D6759] mb-6 max-w-sm mx-auto">
+        Scans WMON, WETH, USDC, USDT and mUSD on Monad Testnet. Reads batched via Multicall3 — one RPC call for all allowance checks.
+      </p>
+      <button type="button" id="scanBtn"
+        class="inline-flex items-center gap-2 rounded-lg bg-[#162512] px-6 py-3 text-sm font-medium text-[#CFE8AE] transition-colors hover:bg-[#21371A]">
+        <i data-lucide="scan-search" class="h-4 w-4" stroke-width="1.5"></i>
+        Scan my wallet
+      </button>
+    </div>
+
+    <div id="scannerLoading" class="hidden rounded-lg border border-[#162512]/10 bg-white p-10 text-center">
+      <p class="text-xs uppercase tracking-[0.22em] text-[#668448] mb-3">Scanning</p>
+      <p class="font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+        Fetching approval history...
+      </p>
+      <p class="text-sm text-[#687464] mt-3">Batching allowance reads via Multicall3</p>
+    </div>
+
+    <div id="scannerClean" class="hidden rounded-lg border border-[#162512]/10 bg-white p-10 text-center">
+      <span class="grid h-12 w-12 place-items-center rounded-lg bg-[#DDECCB] text-[#365322] mx-auto mb-5">
+        <i data-lucide="shield-check" class="h-6 w-6" stroke-width="1.5"></i>
+      </span>
+      <p class="font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512] mb-2">
+        No dangerous approvals found
+      </p>
+      <p class="text-sm text-[#5D6759] max-w-sm mx-auto">
+        No active approvals detected across scanned tokens. Your wallet looks clean.
+      </p>
+      <button type="button" id="rescanCleanBtn"
+        class="mt-6 rounded-lg px-4 py-2 text-sm text-[#253021] border border-[#162512]/15 transition-colors hover:bg-[#162512]/5">
+        Scan again
+      </button>
+    </div>
+
+    <div id="scannerResults" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <p id="scannerSummary" class="text-sm text-[#5D6759]"></p>
+        <button type="button" id="rescanBtn"
+          class="rounded-lg px-4 py-2 text-sm text-[#253021] transition-colors hover:bg-[#162512]/5">
+          Rescan
+        </button>
+      </div>
+      <div id="scannerList" class="overflow-hidden rounded-lg border border-[#162512]/10 divide-y divide-[#162512]/8 bg-white"></div>
+    </div>
+  </div>
+</section>
+
+      <section id="features" class="bg-[#EEF2E9] px-5 py-16 sm:px-8 sm:py-20 lg:py-32">
+        <div class="mx-auto max-w-7xl">
+          <div class="grid gap-8 lg:grid-cols-2">
+            <div class="">
+              <p class="mb-5 text-xs uppercase tracking-[0.22em] text-[#668448]">
+                Core features
+              </p>
+              <h2 class="max-w-2xl font-['Cormorant_Garamond'] text-5xl font-medium leading-none tracking-tight text-[#162512] sm:text-6xl">
+                Approvals with limits, not assumptions.
+              </h2>
+            </div>
+            <p class="max-w-xl self-end text-base leading-8 text-[#566052]">
+              Every signal Limes provides is grounded in facts users can inspect
+              and verify. No opaque reputation systems or proprietary trust
+              scores.
+            </p>
+          </div>
+
+          <div class="mt-16 overflow-hidden rounded-[24px] border border-[#162512]/10 bg-[#162512]/10 shadow-[0_8px_40px_-12px_rgba(22,31,20,0.1)]">
+            <div class="grid gap-[1px] md:grid-cols-2 lg:grid-cols-3">
+              <article class="group relative flex flex-col bg-white p-8 sm:p-10 transition-colors hover:bg-gray-50/50">
+                <div>
+                  <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#F2F6EA] text-[#648347]">
+                    <i data-lucide="timer-reset" class="h-5 w-5" stroke-width="1.5"></i>
+                  </span>
+                  <h3 class="mt-8 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                    Capped, time-boxed permissions
+                  </h3>
+                  <p class="mt-3 text-sm leading-7 text-[#5D6759]">
+                    Hard spending caps, mandatory expiry, recurring periods for
+                    subscriptions, and instant revocation.
+                  </p>
+                </div>
+                <div class="mt-auto pt-12 flex w-full justify-center">
+                  <div class="flex items-center gap-4">
+                    <svg class="h-10 w-10 text-[#8EB364] -rotate-90" viewBox="0 0 36 36">
+                      <path class="text-[#F2F6EA]" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                      <path class="text-[#8EB364]" stroke-dasharray="75, 100" stroke-linecap="round" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                    </svg>
+                    <div class="rounded-full bg-[#162512] px-4 py-2 text-[10px] font-bold tracking-wider text-white shadow-md">
+                      REVOKE
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <article class="group relative flex flex-col bg-white p-8 sm:p-10 transition-colors hover:bg-gray-50/50">
+                <div>
+                  <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#F2F6EA] text-[#648347]">
+                    <i data-lucide="user-round-search" class="h-5 w-5" stroke-width="1.5"></i>
+                  </span>
+                  <h3 class="mt-8 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                    Guidance built around you
+                  </h3>
+                  <p class="mt-3 text-sm leading-7 text-[#5D6759]">
+                    Requests are compared against your transaction history,
+                    normal spending, and past interactions.
+                  </p>
+                </div>
+                <div class="mt-auto pt-12 flex w-full justify-end pr-2">
+                  <div class="w-full max-w-[200px] rounded-xl border border-[#162512]/5 bg-white p-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] transform -rotate-2">
+                    <div class="flex items-center justify-between text-[10px] font-medium text-[#879484] uppercase tracking-wide">
+                      <span>Normal spend</span>
+                      <span>$15</span>
+                    </div>
+                    <div class="mt-2 h-1.5 w-1/4 rounded-full bg-[#E5EBE1]"></div>
+                    <div class="mt-4 flex items-center justify-between text-[10px] font-medium text-[#162512] uppercase tracking-wide">
+                      <span>Requested</span>
+                      <span class="text-[#8EB364]">$500</span>
+                    </div>
+                    <div class="mt-2 h-1.5 w-full rounded-full bg-[#8EB364] shadow-[0_0_10px_rgba(142,179,100,0.4)]"></div>
+                  </div>
+                </div>
+              </article>
+              <article class="group relative flex flex-col bg-[#162512] p-8 text-white sm:p-10 transition-colors hover:bg-[#1A2A15]">
+                <div>
+                  <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#243A1C] text-[#A7D17E]">
+                    <i data-lucide="circle-dollar-sign" class="h-5 w-5" stroke-width="1.5"></i>
+                  </span>
+                  <h3 class="mt-8 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-white">
+                    Exposure simulation
+                  </h3>
+                  <p class="mt-3 text-sm leading-7 text-[#B7C0B2]">
+                    Know the maximum dollar value a spender could access using
+                    current balances and live token prices.
+                  </p>
+                </div>
+                <div class="mt-auto pt-12 flex w-full justify-center lg:justify-end lg:-mr-4">
+                  <div class="w-full max-w-[200px] rounded-xl border border-white/10 bg-white/5 p-4 shadow-2xl backdrop-blur-md transform rotate-3">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#B7C0B2]">
+                        <i data-lucide="wallet" class="h-3 w-3"></i>
+                        Max Exposure
+                      </div>
+                      <div class="flex items-center gap-1 rounded bg-[#8EB364]/20 px-1.5 py-0.5 text-[9px] font-medium text-[#A7D17E]">
+                        <i data-lucide="trending-up" class="h-2.5 w-2.5"></i>
+                        1.2%
+                      </div>
+                    </div>
+                    <div class="mt-2.5 font-['DM_Mono'] text-2xl font-medium tracking-tight text-white">
+                      $4,250
+                      <span class="text-white/50">.00</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <article class="group relative flex flex-col bg-white p-8 sm:p-10 transition-colors hover:bg-gray-50/50">
+                <div>
+                  <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#F2F6EA] text-[#648347]">
+                    <i data-lucide="moon-star" class="h-5 w-5" stroke-width="1.5"></i>
+                  </span>
+                  <h3 class="mt-8 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                    Dormant permission detection
+                  </h3>
+                  <p class="mt-3 text-sm leading-7 text-[#5D6759]">
+                    Surface inactive approvals across 30, 90, and 365-day
+                    windows with one-tap batch revocation.
+                  </p>
+                </div>
+                <div class="mt-auto pt-12 flex w-full justify-start pl-2">
+                  <div class="flex items-center -space-x-3">
+                    <div class="grid h-10 w-10 place-items-center rounded-full border-2 border-white bg-[#F4F7F0] text-[#A7BA98] shadow-sm relative z-0">
+                      <i data-lucide="circle-dashed" class="h-4 w-4" stroke-width="2"></i>
+                    </div>
+                    <div class="grid h-10 w-10 place-items-center rounded-full border-2 border-white bg-[#F4F7F0] text-[#A7BA98] shadow-sm relative z-10">
+                      <i data-lucide="circle-dashed" class="h-4 w-4" stroke-width="2"></i>
+                    </div>
+                    <div class="relative grid h-12 w-12 place-items-center rounded-full border-2 border-white bg-[#F2F6EA] text-[#648347] shadow-md z-20">
+                      <i data-lucide="hexagon" class="h-5 w-5" fill="currentColor"></i>
+                      <div class="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-[#162512] text-white shadow-sm ring-2 ring-white">
+                        <i data-lucide="check" class="h-3 w-3" stroke-width="3"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <article class="group relative flex flex-col bg-white p-8 sm:p-10 transition-colors hover:bg-gray-50/50">
+                <div>
+                  <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#F2F6EA] text-[#648347]">
+                    <i data-lucide="gauge" class="h-5 w-5" stroke-width="1.5"></i>
+                  </span>
+                  <h3 class="mt-8 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                    Wallet Exposure Score
+                  </h3>
+                  <p class="mt-3 text-sm leading-7 text-[#5D6759]">
+                    A clear metric based only on active capped exposure, dormant
+                    permissions, and unlimited legacy approvals.
+                  </p>
+                </div>
+                <div class="mt-auto pt-12 flex w-full justify-center">
+                  <div class="w-full max-w-[220px] rounded-xl border border-[#162512]/5 bg-white p-4 shadow-[0_8px_25px_rgb(0,0,0,0.04)]">
+                    <div class="flex items-center justify-between font-mono text-[11px] font-medium text-[#162512] uppercase tracking-wider">
+                      <span>Score</span>
+                      <span class="text-[#8EB364]">84/100</span>
+                    </div>
+                    <div class="relative mt-4 h-2 w-full rounded-full bg-gradient-to-r from-[#8EB364] via-amber-400 to-red-400">
+                      <div class="absolute -top-1.5 left-[20%] h-5 w-2 rounded-full border-2 border-white bg-[#162512] shadow-sm"></div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <article class="group relative flex flex-col bg-white p-8 sm:p-10 transition-colors hover:bg-gray-50/50">
+                <div>
+                  <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#F2F6EA] text-[#648347]">
+                    <i data-lucide="siren" class="h-5 w-5" stroke-width="1.5"></i>
+                  </span>
+                  <h3 class="mt-8 font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                    Emergency quarantine
+                  </h3>
+                  <p class="mt-3 text-sm leading-7 text-[#5D6759]">
+                    An oracle-gated mass revocation workflow immediately
+                    disables permissions for compromised spenders.
+                  </p>
+                </div>
+                <div class="mt-auto pt-12 flex w-full justify-end pr-4">
+                  <div class="flex flex-col items-center justify-center gap-3">
+                    <div class="flex items-center gap-1.5 rounded-full border border-[#DDECCB] bg-[#F0F5E9] px-2.5 py-1 shadow-sm">
+                      <span class="h-1.5 w-1.5 rounded-full bg-[#648347] shadow-[0_0_8px_rgba(100,131,71,0.6)] animate-pulse"></span>
+                      <span class="text-[9px] font-bold uppercase tracking-widest text-[#365322]">
+                        Secured
+                      </span>
+                    </div>
+                    <div class="grid h-12 w-12 place-items-center rounded-2xl border border-[#162512]/5 bg-white text-[#162512] shadow-[0_8px_20px_rgb(0,0,0,0.06)]">
+                      <i data-lucide="lock" class="h-5 w-5" stroke-width="2"></i>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="px-5 py-16 sm:px-8 sm:py-20 lg:py-32">
+        <div class="mx-auto max-w-7xl">
+          <div class="text-center">
+            <p class="mb-5 text-xs uppercase tracking-[0.22em] text-[#668448]">
+              Use cases
+            </p>
+            <h2 class="font-['Cormorant_Garamond'] text-5xl font-medium leading-none tracking-tight text-[#162512] sm:text-6xl">
+              Built for every wallet that signs approvals.
+            </h2>
+          </div>
+          <div class="mt-16 divide-y divide-[#162512]/10 border-y border-[#162512]/10">
+            <div class="grid gap-4 py-7 md:grid-cols-[3rem_1fr_1fr] md:items-center">
+              <span class="text-xs text-[#74816F]">01</span>
+              <h3 class="font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                Everyday DeFi users
+              </h3>
+              <p class="text-sm leading-7 text-[#5D6759]">
+                Replace unlimited approvals with permissions matching what you
+                intended to spend.
+              </p>
+            </div>
+            <div class="grid gap-4 py-7 md:grid-cols-[3rem_1fr_1fr] md:items-center">
+              <span class="text-xs text-[#74816F]">02</span>
+              <h3 class="font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                Long-term wallet holders
+              </h3>
+              <p class="text-sm leading-7 text-[#5D6759]">
+                Find forgotten approvals accumulated over months or years.
+              </p>
+            </div>
+            <div class="grid gap-4 py-7 md:grid-cols-[3rem_1fr_1fr] md:items-center">
+              <span class="text-xs text-[#74816F]">03</span>
+              <h3 class="font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                Subscription protocols
+              </h3>
+              <p class="text-sm leading-7 text-[#5D6759]">
+                Create recurring spending limits instead of permanent unlimited
+                approvals.
+              </p>
+            </div>
+            <div class="grid gap-4 py-7 md:grid-cols-[3rem_1fr_1fr] md:items-center">
+              <span class="text-xs text-[#74816F]">04</span>
+              <h3 class="font-['Cormorant_Garamond'] text-3xl font-medium tracking-tight text-[#162512]">
+                New crypto users
+              </h3>
+              <p class="text-sm leading-7 text-[#5D6759]">
+                Receive contextual guidance based on personal activity and real
+                exposure.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="developers" class="px-5 pb-16 sm:px-8 sm:pb-20 lg:pb-32">
+        <div class="mx-auto grid max-w-7xl overflow-hidden rounded-lg bg-[#162512] text-white lg:grid-cols-2">
+          <div class="p-8 sm:p-12 lg:p-16">
+            <div class="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-[#9EC778]">
+              Built on Monad
+            </div>
+            <h2 class="leading-none sm:text-3xl text-5xl font-medium tracking-tight font-['Cormorant_Garamond'] mt-8">
+              Fast enough to
+              <span class="text-[#9EC778]">protect</span>
+              <span class="text-[#9EC778]">every approval</span>
+              ,
+              <br class="hidden sm:block">
+              without slowing you down.
+            </h2>
+            <p class="mt-7 text-base leading-8 text-[#B7C0B2]">
+              Monad's high throughput and low latency allow Limes to enforce
+              permission boundaries in real time, giving users stronger approval
+              controls without sacrificing speed or usability.
+            </p>
+            <a href="#" class="mt-9 inline-flex items-center gap-2 text-sm text-[#B9DB98] transition-colors hover:text-white">
+              Explore the architecture
+              <i data-lucide="arrow-up-right" class="h-4 w-4" stroke-width="1.5"></i>
+            </a>
+          </div>
+          <div class="relative min-h-[420px] overflow-hidden border-t border-white/10 lg:border-l lg:border-t-0">
+            <div class="absolute inset-0 opacity-30" style="background-image:linear-gradient(rgba(190,221,160,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(190,221,160,.16) 1px,transparent 1px);background-size:48px 48px"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(142,179,100,0.24),transparent_55%)]"></div>
+            <div class="absolute inset-0 grid place-items-center">
+              <svg viewBox="0 0 600 600" class="absolute inset-0 w-full h-full drop-shadow-2xl" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <filter id="green-glow-main" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="12" result="blur"></feGaussianBlur>
+                    <feComposite in="SourceGraphic" in2="blur" operator="over"></feComposite>
+                  </filter>
+                  <filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+                    <feComposite in="SourceGraphic" in2="blur" operator="over"></feComposite>
+                  </filter>
+                </defs>
+
+                <g transform="translate(300, 300)" class="">
+                  <!-- Deepest Background Grid Plane -->
+                  <g transform="translate(0, 80) scale(1, 0.5) rotate(45)" class="">
+                    <rect x="-300" y="-300" width="600" height="600" stroke="#9EC778" stroke-width="1" stroke-opacity="0.1" fill="rgba(158,199,120,0.01)" class=""></rect>
+                    <g stroke="#9EC778" stroke-opacity="0.08" stroke-width="1">
+                      <line x1="-200" y1="-300" x2="-200" y2="300"></line>
+                      <line x1="-100" y1="-300" x2="-100" y2="300"></line>
+                      <line x1="0" y1="-300" x2="0" y2="300"></line>
+                      <line x1="100" y1="-300" x2="100" y2="300"></line>
+                      <line x1="200" y1="-300" x2="200" y2="300"></line>
+                      <line y1="-200" x1="-300" y2="-200" x2="300"></line>
+                      <line y1="-100" x1="-300" y2="-100" x2="300"></line>
+                      <line y1="0" x1="-300" y2="0" x2="300"></line>
+                      <line y1="100" x1="-300" y2="100" x2="300"></line>
+                      <line y1="200" x1="-300" y2="200" x2="300"></line>
+                    </g>
+                  </g>
+
+                  <!-- Vertical Connectors between Sub-panel (40) and Grid (80) -->
+                  <line x1="198" y1="40" x2="198" y2="80" stroke="#9EC778" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="4,4"></line>
+                  <line x1="-198" y1="40" x2="-198" y2="80" stroke="#9EC778" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="4,4"></line>
+                  <line x1="0" y1="139" x2="0" y2="179" stroke="#9EC778" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="4,4"></line>
+                  <line x1="0" y1="-59" x2="0" y2="-19" stroke="#9EC778" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="4,4"></line>
+
+                  <!-- Translucent Sub-panels -->
+                  <g transform="translate(0, 40) scale(1, 0.5) rotate(45)">
+                    <rect x="-140" y="-140" width="280" height="280" stroke="#9EC778" stroke-width="1" stroke-opacity="0.25" fill="rgba(158,199,120,0.03)"></rect>
+                    <circle cx="-140" cy="-140" r="4" fill="#9EC778" filter="url(#node-glow)"></circle>
+                    <circle cx="140" cy="140" r="4" fill="#9EC778" filter="url(#node-glow)"></circle>
+                    <circle cx="-140" cy="140" r="4" fill="#9EC778" filter="url(#node-glow)"></circle>
+                    <circle cx="140" cy="-140" r="4" fill="#9EC778" filter="url(#node-glow)"></circle>
+                  </g>
+
+                  <!-- Diagonal Wires from Upper Frame to Sub-panel -->
+                  <line x1="254.5" y1="-60" x2="198" y2="40" stroke="#9EC778" stroke-width="1.2" stroke-opacity="0.3"></line>
+                  <line x1="-254.5" y1="-60" x2="-198" y2="40" stroke="#9EC778" stroke-width="1.2" stroke-opacity="0.3"></line>
+                  <line x1="0" y1="-187.2" x2="0" y2="-59" stroke="#9EC778" stroke-width="1.2" stroke-opacity="0.3"></line>
+                  <line x1="0" y1="67.2" x2="0" y2="139" stroke="#9EC778" stroke-width="1.2" stroke-opacity="0.3"></line>
+
+                  <!-- Upper Frame -->
+                  <g transform="translate(0, -60) scale(1, 0.5) rotate(45)" class="">
+                    <rect x="-180" y="-180" width="360" height="360" stroke="#9EC778" stroke-width="1.5" stroke-opacity="0.4" fill="rgba(158,199,120,0.06)" class=""></rect>
+                    <rect x="-120" y="-120" width="240" height="240" stroke="#9EC778" stroke-width="1" stroke-opacity="0.2" fill="none"></rect>
+                    <circle cx="-180" cy="-180" r="5" fill="#9EC778" filter="url(#green-glow-main)"></circle>
+                    <circle cx="180" cy="180" r="5" fill="#9EC778" filter="url(#green-glow-main)"></circle>
+                    <circle cx="180" cy="-180" r="5" fill="#9EC778" filter="url(#green-glow-main)"></circle>
+                    <circle cx="-180" cy="180" r="5" fill="#9EC778" filter="url(#green-glow-main)"></circle>
+                    <line x1="-20" y1="-180" x2="20" y2="-180" stroke="#9EC778" stroke-width="2" stroke-opacity="0.6"></line>
+                    <line x1="-180" y1="-20" x2="-180" y2="20" stroke="#9EC778" stroke-width="2" stroke-opacity="0.6"></line>
+                  </g>
+
+                  <!-- Core Drop Line -->
+                  <line x1="0" y1="-180" x2="0" y2="-90" stroke="#9EC778" stroke-width="1.5" stroke-opacity="0.7" stroke-dasharray="3,4"></line>
+
+                  <!-- Core Object -->
+                  <g transform="translate(0, -60)" class="">
+                    <path d="M0,60 L-80,20 L-80,-30 L0,10 Z" fill="#0D160A" stroke="#9EC778" stroke-width="1.5" stroke-opacity="0.7" class=""></path>
+                    <path d="M0,60 L80,20 L80,-30 L0,10 Z" fill="#14210F" stroke="#9EC778" stroke-width="1.5" stroke-opacity="0.5"></path>
+                    <path d="M0,10 L-80,-30 L0,-70 L80,-30 Z" fill="#1B2D14" stroke="#9EC778" stroke-width="2" stroke-opacity="0.9" filter="drop-shadow(0 0 25px rgba(158,199,120,0.2))"></path>
+                    <g transform="translate(0, -30) scale(0.65, 0.325) rotate(45)">
+                      <g transform="translate(-250, -245)">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M250 181c11 0 18 5 27 15l31 35c9 10 9 19 0 29l-31 35c-9 10-16 15-27 15s-18-5-27-15l-31-35c-9-10-9-19 0-29l31-35c9-10 16-15 27-15Zm0 27c-4 0-7 2-11 7l-23 25c-4 5-4 7 0 12l23 25c4 5 7 7 11 7s7-2 11-7l23-25c4-5 4-7 0-12l-23-25c-4-5-7-7-11-7Z" fill="#9EC778"></path>
+                      </g>
+                    </g>
+                  </g>
+
+                  <!-- Top Node -->
+                  <g transform="translate(0, -180) scale(1, 0.5) rotate(45)">
+                    <rect x="-20" y="-20" width="40" height="40" stroke="#9EC778" stroke-width="2" stroke-opacity="0.5" fill="none"></rect>
+                    <circle cx="0" cy="0" r="4" fill="#9EC778" filter="url(#node-glow)"></circle>
+                  </g>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="cta" class="px-5 py-16 sm:px-8 sm:py-20 lg:py-32">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-12 max-w-7xl mr-auto ml-auto gap-x-12 gap-y-12 items-start justify-between">
+          <div class="max-w-[800px] text-2xl sm:text-3xl lg:text-4xl leading-[1.4] tracking-tight">
+            <span class="text-[#74816F]">
+              Discover how Limes transforms every token approval into a
+            </span>
+            <span class="font-medium text-[#162512]">
+              permission you define
+            </span>
+            <span class="text-[#74816F]">, with</span>
+            <span class="font-medium text-[#162512]">clear limits</span>
+            <span class="text-[#74816F]">
+              instead of unlimited access. Unlimited approvals became the
+              default only because nothing better existed.
+            </span>
+          </div>
+          <div class="shrink-0 w-full flex justify-center lg:w-auto lg:block">
+            <a href="#demo" class="inline-flex items-center gap-3 rounded-full bg-[#8EB364] py-2 pl-2 pr-6 text-sm font-medium text-[#162512] transition-all hover:bg-[#9FC477]">
+              <span class="grid h-10 w-10 place-items-center rounded-full bg-[#162512] text-[#8EB364]">
+                <i data-lucide="arrow-right" class="h-4 w-4" stroke-width="1.5"></i>
+              </span>
+              Watch the Demo
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-[#162512] px-5 pb-8 pt-12 text-white sm:px-8 sm:pt-16 relative overflow-hidden">
+      <div class="mx-auto max-w-7xl">
+        <div class="grid gap-14 border-b border-white/10 pb-16 lg:grid-cols-[1.5fr_1fr_1fr_1fr] relative z-10 md:grid-cols-2">
+          <div class="max-w-md">
+            <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/8135d839-bfac-49b5-9c75-02c3f99fbcef_320w.jpg" alt="Limes Logo" class="h-9 w-auto object-contain rounded-lg shadow-sm">
+            <p class="leading-7 text-base text-[#9FAA9B] mt-6">
+              Bounded token approvals for a safer on-chain experience.
+            </p>
+          </div>
+
+          <div class="">
+            <p class="text-xs uppercase tracking-[0.18em] text-[#879484]">
+              Links
+            </p>
+            <ul class="mt-6 space-y-4 text-sm text-[#C8D0C5]">
+              <li class="">
+                <a href="#" class="hover:text-[#A9D183]">Home</a>
+              </li>
+              <li class="">
+                <a href="#product" class="hover:text-[#A9D183]">Platform</a>
+              </li>
+              <li class="">
+                <a href="#how-it-works" class="hover:text-[#A9D183]">Privacy</a>
+              </li>
+              <li class="">
+                <a href="#" class="hover:text-[#A9D183]">Terms</a>
+              </li>
+              <li><a href="#" class="hover:text-[#A9D183]">Contact us</a></li>
+            </ul>
+          </div>
+          <div class="">
+            <p class="text-xs uppercase tracking-[0.18em] text-[#879484]">
+              Product
+            </p>
+            <ul class="mt-6 space-y-4 text-sm text-[#C8D0C5]">
+              <li class="">
+                <a href="#features" class="hover:text-[#A9D183]">Features</a>
+              </li>
+
+              <li class="">
+                <a href="#" class="hover:text-[#A9D183]">Documentation</a>
+              </li>
+              <li class="">
+                <a href="#demo" class="hover:text-[#A9D183]">Demo</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="">
+            <p class="text-xs uppercase tracking-[0.18em] text-[#879484]">
+              Developers
+            </p>
+            <ul class="mt-6 space-y-4 text-sm text-[#C8D0C5]">
+              <li>
+                <a href="#" class="hover:text-[#A9D183]">Smart contracts</a>
+              </li>
+              <li><a href="#" class="hover:text-[#A9D183]">GitHub</a></li>
+              <li><a href="#" class="hover:text-[#A9D183]">API</a></li>
+              <li><a href="#" class="hover:text-[#A9D183]">Security</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-5 pt-8 text-xs text-[#879484] sm:flex-row sm:items-center sm:justify-between relative z-10">
+          <p>© 2026 Limes. Open-source permission infrastructure.</p>
+          <div class="flex items-center gap-5">
+            <a href="#" class="inline-flex items-center gap-2 hover:text-white">
+              Built for BuildAnything Spark Hackathon
+              <span class="h-2 w-2 rounded-full bg-[#8EB364]"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="pointer-events-none mt-12 -mb-8 sm:-mb-12 flex w-full select-none items-end justify-center leading-none opacity-[0.035] sm:opacity-5 relative z-0">
+        <span class="font-['Cormorant_Garamond'] text-[28vw] font-bold tracking-tighter text-[#8EB364] whitespace-nowrap">
+          LIMES
+        </span>
+      </div>
+    </footer>
+
+<script type="module" src="/src/main.js"></script>
+  
+</body></html>
