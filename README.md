@@ -58,35 +58,33 @@ Limes continuously helps users reduce existing exposure by scanning for dangerou
 ### Architecture
 
 Limes is deployed on the Monad Testnet as a two-contract system with a frontend approval dashboard. Together, these components introduce an enforceable permission layer for ERC-20 approvals without requiring wallet modifications, smart accounts, or changes to existing token contracts.
-
 ```mermaid
 flowchart LR
-    U[User Wallet (EOA)]
+
+    U[User Wallet]
 
     subgraph Limes
-        V[LimesVault.sol]
-        R[PermissionRegistry]
+        V[LimesVault]
     end
 
-    T[ERC-20 Token]
     D[dApp]
-    S[Frontend Scanner]
+    T[ERC20 Token]
     M[Multicall3]
-    P[Protocol Treasury]
+    F[Frontend]
 
-    U -->|One-time approve(type(uint256).max)| V
-    D -->|Create permission<br/>cap + expiry| R
-    R -->|Store permission| V
+    U -->|1. Approve Vault Once| T
+    U -->|2. Create Permission| V
 
-    V -->|Validate cap, expiry and revocation| T
-    T -->|transferFrom| D
-    T -->|Protocol fee| P
+    D -->|3. Request Payment| V
 
-    S -->|eth_getLogs Approval events| U
-    S -->|Batch allowance reads| M
-    M -->|Single RPC response| S
+    V -->|Validate Cap, Expiry, Revocation| V
+    V -->|4. transferFrom| T
 
-    U -->|Revoke permission| R
+    T --> D
+
+    F -->|Approval Scanner| M
+    M -->|Batch allowance reads| T
+    T --> F
 ```
 
 ### Components
@@ -199,53 +197,38 @@ The protocol pause protects the system. The revoke function protects the user.
 
 ### System Architecture Overview
 
-┌─────────────────────────────────────────────────────────────┐
-│                        USER WALLET (EOA)                     │
-└────────────────────────────┬────────────────────────────────┘
-                             │ one-time ERC-20 approve()
-                             ▼
-┌─────────────────────────────────────────────────────────────┐
-│                       LimesVault.sol                         │
-│                                                              │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │ Permission {                                         │    │
-│  │   owner, spender, token                             │    │
-│  │   cap, period, spent, periodStart                   │    │
-│  │   expiry, revoked                                   │    │
-│  │ }                                                   │    │
-│  └─────────────────────────────────────────────────────┘    │
-│                                                              │
-│  grantPermission() · revoke() · pull() · remainingAllowance()│
-│  pause() [owner] · setProtocolFeeBps() [owner, max 5%]      │
-└──────────────┬──────────────────────────────────────────────┘
-               │ pull(id, amount) — after cap/expiry/revoke check
-               ▼
-┌──────────────────────────┐     ┌──────────────────────────┐
-│   LimesSubscription.sol  │     │     Any dApp Spender      │
-│   (reference integration)│     │   (integrates same API)   │
-└──────────────────────────┘     └──────────────────────────┘
-               │ PRICE=5 mUSD, CYCLE=30 days
-               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                       ERC-20 Token                           │
-│              transferFrom(owner → spender, netAmount)        │
-│              transferFrom(owner → treasury, fee)             │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
 
-### Approval Scanner Flow
+    U["User Wallet"]
+    V["LimesVault"]
 
-Frontend
-  │
-  ├── For each of 5 known tokens:
-  │     eth_getLogs(Approval, owner=userAddress)   [5 RPC calls]
-  │     → collect unique spenders
-  │
-  └── Multicall3.aggregate3([
-        allowance(owner, spender) × N pairs        [1 RPC call]
-      ])
-        → filter non-zero
-        → render with Unlimited / Active badge
-        → wire Revoke button → approve(spender, 0)
+    U -->|"Approve Once"| V
+    U -->|"Create Permission"| V
+
+    V -->|"Validated Pull"| S["LimesSubscription"]
+    V -->|"Validated Pull"| D["Any dApp"]
+
+    S --> T["ERC20 Token"]
+    D --> T
+
+    T --> X["Protocol Treasury"]
+```
+
+
+### Permission Structure
+
+Each permission stores:
+
+- owner
+- spender
+- token
+- cap
+- spent
+- period
+- periodStart
+- expiry
+- revoked
 
 
 ## How It Works
